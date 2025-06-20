@@ -1,8 +1,8 @@
 import utils
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 
-NEST_DB = 'nest.db'
+NEST_DB = '/home/wenshan/Documents/sqlite/climate.db'
 NEST_TABLE = 'nest_data'
 
 def insert_data():
@@ -10,11 +10,11 @@ def insert_data():
     cur = con.cursor()
     nest = utils.get_traits()
 
-    now = datetime.now().replace(second=0, microsecond=0).strftime("%Y-%m-%d %H:%M")
+    now_utc = datetime.now(timezone.utc).replace(second=0, microsecond=0).isoformat().replace("+00:00", "Z")
     cur.execute(f"""
 INSERT INTO {NEST_TABLE} (timestamp, temperature, humidity)
 VALUES (?, ?, ?)
-""", (now, nest['sdm.devices.traits.Temperature']['ambientTemperatureCelsius'], nest['sdm.devices.traits.Humidity']['ambientHumidityPercent']))
+""", (now_utc, nest['sdm.devices.traits.Temperature']['ambientTemperatureCelsius'], nest['sdm.devices.traits.Humidity']['ambientHumidityPercent']))
     con.commit()
     con.close()
 
@@ -23,4 +23,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
